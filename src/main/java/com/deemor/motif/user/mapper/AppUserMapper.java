@@ -8,10 +8,15 @@ import com.deemor.motif.user.dto.EditAppUserDto;
 import com.deemor.motif.user.dto.RegisterAppUserDto;
 import com.deemor.motif.user.entity.AppUser;
 import org.mapstruct.Mapper;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper()
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
 public interface AppUserMapper {
 
     AppUser mapRegisterAppUserDtoToAppuser(RegisterAppUserDto registerAppUserDTO);

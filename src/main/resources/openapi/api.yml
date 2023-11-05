@@ -4,6 +4,7 @@ info:
   title: MOTIF
 tags:
   - name: "User"
+  - name: "HelpRequest"
 servers:
   - url: "http://localhost:8080"
     description: "Local server"
@@ -74,6 +75,89 @@ paths:
       responses:
         "200":
           description: "OK"
+  /helpRequests:
+    post:
+      summary: Add help request
+      tags:
+        - "HelpRequest"
+      operationId: addHelpRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelpRequestAdd'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpRequest'
+    get:
+      summary: Get my help requests pageable
+      tags:
+        - "HelpRequest"
+      operationId: getHelpRequestsPageable
+      parameters:
+        - name: requestDto
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestPageable'
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpRequestPage'
+  /helpRequests/admin:
+    get:
+      summary: Get all help requests pageable
+      tags:
+        - "HelpRequest"
+      operationId: getHelpRequestsAdminPageable
+      parameters:
+        - name: requestDto
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestPageable'
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpRequestPage'
+
+  /helpRequests/{helpRequestId}:
+    put:
+      summary: Edit help request
+      tags:
+        - "HelpRequest"
+      operationId: editHelpRequest
+      parameters:
+        - name: helpRequestId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelpRequestEdit'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpRequest'
+
+
 components:
   schemas:
     User:
@@ -124,6 +208,99 @@ components:
           example: "password123"
           minLength: 5
           maxLength: 50
+    HelpRequestPage:
+      description: Help requests
+      type: object
+      required:
+        - totalNumberOfPages
+        - totalNumberOfElements
+        - requests
+      properties:
+        totalNumberOfPages:
+          description: Total number of pages
+          type: integer
+          format: int32
+          example: 123
+        totalNumberOfElements:
+          description: Total number of pages
+          type: integer
+          format: int32
+          example: 123
+        requests:
+          description: Retrieved requests
+          type: array
+          items:
+            $ref: "#/components/schemas/HelpRequest"
+    HelpRequest:
+      description: Help request
+      type: object
+      properties:
+        id:
+          description: id
+          type: integer
+          format: int64
+          example: 123
+        description:
+          description: description
+          type: string
+          example: "description"
+        response:
+          description: response
+          type: string
+          example: "response"
+        requester:
+          description: requester
+          type: string
+          example: "requester"
+        date:
+          type: string
+          format: date-time
+          description: Creation date and time
+          example: "2021-01-30T08:30:00Z"
+        status:
+          description: Help request status
+          type: string
+          enum:
+            - NEW
+            - CLOSED
+            - OPEN
+    HelpRequestAdd:
+      description: Help request add
+      type: object
+      properties:
+        description:
+          description: description
+          type: string
+          example: "description"
+    HelpRequestEdit:
+      description: Help request edit
+      type: object
+      properties:
+        response:
+          description: response
+          type: string
+          example: "response"
+        status:
+          description: Help request status
+          type: string
+          enum:
+            - NEW
+            - CLOSED
+            - OPEN
+    RequestPageable:
+      description: Pageable request
+      type: object
+      properties:
+        page:
+          description: page
+          type: integer
+          format: int32
+          example: 0
+        size:
+          description: size
+          type: integer
+          format: int32
+          example: 10
   securitySchemes:
     bearerAuth:
       type: http

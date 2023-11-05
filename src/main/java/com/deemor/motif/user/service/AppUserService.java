@@ -10,6 +10,7 @@ import com.deemor.motif.user.exception.UserUsernameNotAvaliableException;
 import com.deemor.motif.user.mapper.AppUserMapper;
 import com.deemor.motif.user.repository.AppUserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+
+import static com.deemor.motif.security.util.AuthUtil.getLoggedUserUsername;
 
 @Service
 @AllArgsConstructor
@@ -99,6 +102,13 @@ public class AppUserService implements UserDetailsService {
                 );
 
         appUserRepository.delete(user);
+    }
+
+    public AppUser getLoggedUser() {
+        return appUserRepository.findByUsername(getLoggedUserUsername().toLowerCase())
+                .orElseThrow(
+                        () -> new UsernameNotFoundException("Logged user not found. Authentication error")
+                );
     }
 
     private boolean isExistingUser(String username){

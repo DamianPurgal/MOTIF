@@ -1,12 +1,13 @@
 package com.deemor.motif.user.entity;
 
+import com.deemor.motif.helpRequest.entity.HelpRequest;
 import com.deemor.motif.security.UserRole;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.*;
 
 @Getter
 @Setter
@@ -39,6 +40,9 @@ public class AppUser implements UserDetails {
 
     @Column(name="enabled")
     private Boolean enabled = true;
+
+    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<HelpRequest> helpRequests = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
