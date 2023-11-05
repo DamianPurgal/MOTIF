@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: MOTIF
+tags:
+  - name: "User"
+servers:
+  - url: "http://localhost:8080"
+    description: "Local server"
+paths:
+  /users:
+    get:
+      security:
+        - bearerAuth: ['XD', 'POZDRO']
+      summary: Get all users
+      tags:
+        - "User"
+      operationId: getAllUsers
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Register user
+      tags:
+        - "User"
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      summary: Edit user
+      tags:
+        - "User"
+      operationId: editUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEdit'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{username}:
+    delete:
+      summary: Delete user
+      tags:
+        - "User"
+      operationId: deleteUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+components:
+  schemas:
+    User:
+      description: User
+      type: object
+      properties:
+        username:
+          description: username
+          type: string
+          example: "User1234"
+          minLength: 4
+          maxLength: 50
+    UserEdit:
+      description: User edit model
+      type: object
+      properties:
+        username:
+          description: username
+          type: string
+          example: "User1234"
+          minLength: 4
+          maxLength: 50
+        oldPassword:
+          description: old password
+          type: string
+          example: "oldPassword"
+          minLength: 5
+          maxLength: 50
+        newPassword:
+          description: new password
+          type: string
+          example: "newPassword"
+          minLength: 5
+          maxLength: 50
+    UserRegister:
+      description: User register model
+      type: object
+      properties:
+        username:
+          description: username
+          type: string
+          example: "User1234"
+          minLength: 4
+          maxLength: 50
+        password:
+          description: new password
+          type: string
+          example: "password123"
+          minLength: 5
+          maxLength: 50
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+security:
+  - bearerAuth: [ ]

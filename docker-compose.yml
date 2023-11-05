@@ -1,0 +1,31 @@
+version: "3.9"
+name: motif
+services:
+  postgresMotifDB:
+    image: postgres:14.4
+    container_name: postgresMotifDB
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: "229grAFOaKM6QFb5Tzdd9L"
+      POSTGRES_USER: "motifadmin"
+      POSTGRES_DB: "motif"
+#  rabbitmq:
+#    image: rabbitmq:management
+#    container_name: rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#  backend:
+#    build: .
+#    container_name: backend
+#    depends_on:
+#      - postgresDB
+##      - rabbitmq
+#    ports:
+#      - 8080:8080
+#    environment:
+#      - "TZ=Europe/Warsaw"
+#      - "SPRING_PROFILES_ACTIVE=production"
+#    links:
+#      - postgresDB:postgresDB
