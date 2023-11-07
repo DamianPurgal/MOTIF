@@ -10,13 +10,14 @@ import com.deemor.motif.user.exception.UserUsernameNotAvaliableException;
 import com.deemor.motif.user.mapper.AppUserMapper;
 import com.deemor.motif.user.repository.AppUserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -24,12 +25,36 @@ import static com.deemor.motif.security.util.AuthUtil.getLoggedUserUsername;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AppUserService implements UserDetailsService {
 
 
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final AppUserMapper appUserMapper;
+
+    @PostConstruct
+    private void createBasicAccounts() {
+        try {
+            registerUser(
+                    RegisterAppUserDto.builder()
+                            .username("admin")
+                            .password("admin")
+                            .build()
+            );
+            log.info("Admin auto-registered");
+        } catch (Exception ignored) { }
+        try {
+            registerUser(
+                    RegisterAppUserDto.builder()
+                            .username("user")
+                            .password("user")
+                            .build()
+            );
+            log.info("User auto-registered");
+        } catch (Exception ignored) { }
+
+    }
 
     @Transactional
     public AppUserDto registerUser(RegisterAppUserDto user) {

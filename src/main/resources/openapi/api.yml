@@ -5,14 +5,13 @@ info:
 tags:
   - name: "User"
   - name: "HelpRequest"
+  - name: "Alert"
 servers:
   - url: "http://localhost:8080"
     description: "Local server"
 paths:
   /users:
     get:
-      security:
-        - bearerAuth: ['XD', 'POZDRO']
       summary: Get all users
       tags:
         - "User"
@@ -156,7 +155,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HelpRequest'
-
+  /alerts:
+    get:
+      summary: Get all my alerts pageable
+      tags:
+        - "Alert"
+      operationId: getAlertsOfUserPageable
+      parameters:
+        - name: requestDto
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestPageable'
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertPage'
+  /alerts/unread:
+    get:
+      summary: Get my unread alerts
+      tags:
+        - "Alert"
+      operationId: getAllUnreadAlertsOfUser
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+  /alerts/statistics:
+    get:
+      summary: Get my alert statistics
+      tags:
+        - "Alert"
+      operationId: getAlertStatisticsOfUser
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertStatistics'
 
 components:
   schemas:
@@ -301,6 +346,86 @@ components:
           type: integer
           format: int32
           example: 10
+    Alert:
+      description: Alert
+      type: object
+      properties:
+        id:
+          description: alert id
+          type: integer
+          format: int64
+          example: 0
+        title:
+          description: title
+          type: string
+          example: "title"
+        description:
+          description: description
+          type: string
+          example: "description"
+        date:
+          type: string
+          format: date-time
+          description: Creation date and time
+          example: "2021-01-30T08:30:00Z"
+        priority:
+          description: alert priority
+          type: integer
+          format: int64
+          example: 0
+        type:
+          description: Alert type
+          type: string
+          enum:
+            - BASIC
+            - HELP_REQUEST
+        style:
+          description: Alert style
+          type: string
+          enum:
+            - BASIC
+            - WARNING
+            - INFORMATION
+        seen:
+          description: alert seen
+          type: boolean
+          example: false
+        user:
+          description: user username
+          type: string
+          example: "user123"
+    AlertPage:
+      description: Help requests
+      type: object
+      required:
+        - totalNumberOfPages
+        - totalNumberOfElements
+        - alerts
+      properties:
+        totalNumberOfPages:
+          description: Total number of pages
+          type: integer
+          format: int32
+          example: 123
+        totalNumberOfElements:
+          description: Total number of pages
+          type: integer
+          format: int32
+          example: 123
+        alerts:
+          description: Retrieved alerts
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+    AlertStatistics:
+      description: Alert statistics
+      type: object
+      properties:
+        unreadAlerts:
+          description: unread Alerts
+          type: integer
+          format: int32
+          example: 0
   securitySchemes:
     bearerAuth:
       type: http

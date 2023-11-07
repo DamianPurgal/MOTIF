@@ -1,5 +1,6 @@
 package com.deemor.motif.user.entity;
 
+import com.deemor.motif.alert.entity.Alert;
 import com.deemor.motif.helpRequest.entity.HelpRequest;
 import com.deemor.motif.security.UserRole;
 import lombok.*;
@@ -43,6 +44,9 @@ public class AppUser implements UserDetails {
 
     @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<HelpRequest> helpRequests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Alert> alerts = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
