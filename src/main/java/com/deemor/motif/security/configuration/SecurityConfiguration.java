@@ -59,6 +59,7 @@ public class SecurityConfiguration extends AbstractHttpConfigurer<SecurityConfig
         http.authorizeRequests()
                 .antMatchers("/api/auth/register").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll();
+//                .antMatchers("/ws").authenticated();
 
         http.authenticationProvider(authenticationProvider());
 

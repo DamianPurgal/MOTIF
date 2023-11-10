@@ -12,11 +12,13 @@ import com.deemor.motif.alert.repository.AlertRepository;
 import com.deemor.motif.user.entity.AppUser;
 import com.deemor.motif.user.repository.AppUserRepository;
 import com.deemor.motif.user.service.AppUserService;
+import com.deemor.motif.websocket.WebsocketPath;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,7 @@ public class AlertService {
     private final AlertMapper alertMapper;
     private final AppUserService appUserService;
     private final AppUserRepository appUserRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Transactional
     public List<AlertDto> getAllUnreadAlertsOfUser() {
@@ -69,7 +72,17 @@ public class AlertService {
                 alert.toBuilder().user(user).build())
         );
 
-        return alertMapper.mapEntityToDto(alertRepository.saveAll(alerts));
+        List<AlertDto> savedAlerts = alertMapper.mapEntityToDto(alertRepository.saveAll(alerts));
+
+        savedAlerts.forEach(
+                savedAlert -> simpMessagingTemplate.convertAndSendToUser(
+                        savedAlert.getUser(),
+                        WebsocketPath.NEW_ALERT_SPECIFIC_USER.getPath(),
+                        alertMapper.mapDtoToModelApi(savedAlert)
+                )
+        );
+
+        return savedAlerts;
     }
 
     @Transactional
@@ -77,7 +90,15 @@ public class AlertService {
         Alert alert = alertMapper.mapDtoToAlert(alertDto);
         alert.setUser(appUserService.getLoggedUser());
 
-        return alertMapper.mapEntityToDto(alertRepository.save(alert));
+        AlertDto savedAlert = alertMapper.mapEntityToDto(alertRepository.save(alert));
+
+        simpMessagingTemplate.convertAndSendToUser(
+                savedAlert.getUser(),
+                WebsocketPath.NEW_ALERT_SPECIFIC_USER.getPath(),
+                alertMapper.mapDtoToModelApi(savedAlert)
+        );
+
+        return savedAlert;
     }
 
     public AlertStatistics getAlertStatisticsOfUser() {
@@ -86,10 +107,12 @@ public class AlertService {
                 .build();
     }
 
+
+    //Method for testing
 //    @Scheduled(fixedDelay = 2000)
-//    public void addTaskToUser() {
+//    public void addAlertToUser() {
 //        try {
-//            AppUser appUser = appUserRepository.findByUsername("user").orElseThrow(Exception::new);
+//            AppUser appUser = appUserRepository.findByUsername("admin").orElseThrow(Exception::new);
 //
 //            Alert alert = Alert.builder()
 //                    .style(AlertStyle.BASIC)
@@ -102,10 +125,15 @@ public class AlertService {
 //                    .user(appUser)
 //                    .build();
 //
-//            alertRepository.save(alert);
-//            log.info("task added to User");
-//        } catch (Exception ignored) {};
+//            simpMessagingTemplate.convertAndSendToUser(
+//                    appUser.getUsername(),
+//                    WebsocketPath.NEW_ALERT_SPECIFIC_USER.getPath(),
+//                    alertMapper.mapDtoToModelApi(alertMapper.mapEntityToDto(alert))
+//            );
 //
+//            log.info("Alert send to specific User: " + appUser.getUsername());
+//
+//        } catch (Exception ignored) {};
 //    }
 
 }
