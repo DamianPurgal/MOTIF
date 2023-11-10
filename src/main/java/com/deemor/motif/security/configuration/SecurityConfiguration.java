@@ -1,5 +1,8 @@
 package com.deemor.motif.security.configuration;
 
+import com.deemor.motif.security.CustomAuthenticationFailureHandler;
+import com.deemor.motif.security.filter.JwtAuthenticationFilter;
+import com.deemor.motif.security.filter.JwtAuthorizationFilter;
 import com.deemor.motif.user.service.AppUserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,9 +20,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import com.deemor.motif.security.CustomAuthenticationFailureHandler;
-import com.deemor.motif.security.filter.JwtAuthenticationFilter;
-import com.deemor.motif.security.filter.JwtAuthorizationFilter;
 
 import javax.crypto.SecretKey;
 import java.util.Arrays;
@@ -89,6 +89,7 @@ public class SecurityConfiguration extends AbstractHttpConfigurer<SecurityConfig
 
         return authProvider;
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -100,6 +101,7 @@ public class SecurityConfiguration extends AbstractHttpConfigurer<SecurityConfig
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
     @Bean
     public UserDetailsService userDetailsService() {
         return userService;

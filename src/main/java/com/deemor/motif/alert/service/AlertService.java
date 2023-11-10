@@ -4,9 +4,6 @@ import com.deemor.motif.alert.dto.AlertDto;
 import com.deemor.motif.alert.dto.AlertPage;
 import com.deemor.motif.alert.dto.AlertStatistics;
 import com.deemor.motif.alert.entity.Alert;
-import com.deemor.motif.alert.entity.AlertPriority;
-import com.deemor.motif.alert.entity.AlertStyle;
-import com.deemor.motif.alert.entity.AlertType;
 import com.deemor.motif.alert.mapper.AlertMapper;
 import com.deemor.motif.alert.repository.AlertRepository;
 import com.deemor.motif.user.entity.AppUser;
@@ -19,11 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
