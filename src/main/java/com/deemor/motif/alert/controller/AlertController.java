@@ -9,6 +9,7 @@ import com.deemor.motif.model.AlertStatisticsModelApi;
 import com.deemor.motif.model.RequestPageableModelApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 

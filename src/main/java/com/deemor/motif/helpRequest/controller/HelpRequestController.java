@@ -6,6 +6,7 @@ import com.deemor.motif.helpRequest.service.HelpRequestService;
 import com.deemor.motif.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,7 @@ public class HelpRequestController implements HelpRequestApi {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Override
     public ResponseEntity<HelpRequestModelApi> editHelpRequest(Long helpRequestId, HelpRequestEditModelApi helpRequestEditModelApi) {
         return ResponseEntity.ok().body(
@@ -35,6 +37,7 @@ public class HelpRequestController implements HelpRequestApi {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Override
     public ResponseEntity<HelpRequestPageModelApi> getHelpRequestsAdminPageable(RequestPageableModelApi requestDto) {
         return ResponseEntity.ok().body(

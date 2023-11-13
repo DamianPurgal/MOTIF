@@ -49,4 +49,16 @@ public class Alert {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
+    public static Alert getBasicAlertTemplate() {
+        return Alert.builder()
+                .title("Title")
+                .description("Description")
+                .date(LocalDateTime.now())
+                .priority(AlertPriority.BASIC.getPriority())
+                .type(AlertType.BASIC)
+                .style(AlertStyle.BASIC)
+                .seen(false)
+                .build();
+    }
+
 }

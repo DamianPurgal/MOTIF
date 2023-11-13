@@ -1,5 +1,6 @@
 package com.deemor.motif.helpRequest.service;
 
+import com.deemor.motif.alert.service.AlertService;
 import com.deemor.motif.helpRequest.dto.HelpRequestAddDto;
 import com.deemor.motif.helpRequest.dto.HelpRequestDto;
 import com.deemor.motif.helpRequest.dto.HelpRequestEditDto;
@@ -27,6 +28,7 @@ public class HelpRequestService {
     private final HelpRequestRepository helpRequestRepository;
     private final HelpRequestMapper helpRequestMapper;
     private final AppUserService appUserService;
+    private final AlertService alertService;
 
     public HelpRequestDto addHelpRequest(HelpRequestAddDto helpRequestAddDto) {
         HelpRequest helpRequest = helpRequestMapper.mapAddDtoToEntity(helpRequestAddDto);
@@ -44,7 +46,15 @@ public class HelpRequestService {
         helpRequest.setResponse(helpRequestEditDto.getResponse());
         helpRequest.setStatus(helpRequestEditDto.getStatus());
 
-        return helpRequestMapper.mapEntityToDto(helpRequestRepository.save(helpRequest));
+        HelpRequestDto savedHelpRequest = helpRequestMapper.mapEntityToDto(helpRequestRepository.save(helpRequest));
+
+        alertService.addBasicAlertToUser(
+                "Zaktualizowano status zgłoszenia #" + savedHelpRequest.getId(),
+                "Status zgłoszenia został zaktualizowany. Przejdź do zakładki 'Zgłoszenia' aby zobaczyć odpowiedź.",
+                savedHelpRequest.getRequester()
+        );
+
+        return savedHelpRequest;
     }
 
     public HelpRequestPage getHelpRequestsOfUserPageable(Integer pageNumber, Integer itemsPerPage) {
@@ -67,8 +77,8 @@ public class HelpRequestService {
         itemsPerPage = itemsPerPage > 10 ? 10 : itemsPerPage;
 
         Page<HelpRequest> page = helpRequestRepository.findAllByStatusIn(
-                List.of(HelpRequestStatus.NEW, HelpRequestStatus.CLOSED),
-                PageRequest.of(pageNumber, itemsPerPage, Sort.by("id").ascending())
+                List.of(HelpRequestStatus.NEW, HelpRequestStatus.CLOSED, HelpRequestStatus.OPEN),
+                PageRequest.of(pageNumber, itemsPerPage, Sort.by("id").descending())
         );
 
         HelpRequestPage result = new HelpRequestPage();

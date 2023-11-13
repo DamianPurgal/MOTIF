@@ -6,16 +6,16 @@ import com.deemor.motif.alert.dto.AlertStatistics;
 import com.deemor.motif.alert.entity.Alert;
 import com.deemor.motif.alert.mapper.AlertMapper;
 import com.deemor.motif.alert.repository.AlertRepository;
+import com.deemor.motif.notification.service.NotificationService;
 import com.deemor.motif.user.entity.AppUser;
+import com.deemor.motif.user.exception.UserUsernameNotFoundException;
 import com.deemor.motif.user.repository.AppUserRepository;
 import com.deemor.motif.user.service.AppUserService;
-import com.deemor.motif.websocket.WebsocketPath;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -31,7 +31,7 @@ public class AlertService {
     private final AlertMapper alertMapper;
     private final AppUserService appUserService;
     private final AppUserRepository appUserRepository;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final NotificationService notificationService;
 
     @Transactional
     public List<AlertDto> getAllUnreadAlertsOfUser() {
@@ -67,17 +67,11 @@ public class AlertService {
                 alert.toBuilder().user(user).build())
         );
 
-        List<AlertDto> savedAlerts = alertMapper.mapEntityToDto(alertRepository.saveAll(alerts));
+        List<Alert> savedAlerts = alertRepository.saveAll(alerts);
 
-        savedAlerts.forEach(
-                savedAlert -> simpMessagingTemplate.convertAndSendToUser(
-                        savedAlert.getUser(),
-                        WebsocketPath.NEW_ALERT_SPECIFIC_USER.getPath(),
-                        alertMapper.mapDtoToModelApi(savedAlert)
-                )
-        );
+        savedAlerts.forEach(savedAlert -> notificationService.sendNotificationToUser(savedAlert, savedAlert.getUser().getUsername()));
 
-        return savedAlerts;
+        return alertMapper.mapEntityToDto(savedAlerts);
     }
 
     @Transactional
@@ -85,15 +79,28 @@ public class AlertService {
         Alert alert = alertMapper.mapDtoToAlert(alertDto);
         alert.setUser(appUserService.getLoggedUser());
 
-        AlertDto savedAlert = alertMapper.mapEntityToDto(alertRepository.save(alert));
+        Alert savedAlert = alertRepository.save(alert);
 
-        simpMessagingTemplate.convertAndSendToUser(
-                savedAlert.getUser(),
-                WebsocketPath.NEW_ALERT_SPECIFIC_USER.getPath(),
-                alertMapper.mapDtoToModelApi(savedAlert)
-        );
+        notificationService.sendNotificationToUser(savedAlert, alert.getUser().getUsername());
 
-        return savedAlert;
+        return alertMapper.mapEntityToDto(savedAlert);
+    }
+
+    public AlertDto addBasicAlertToUser(String title, String description, String user) {
+        return addBasicAlertToUser(title, description, appUserRepository.findByUsername(user).orElseThrow(UserUsernameNotFoundException::new));
+    }
+
+    public AlertDto addBasicAlertToUser(String title, String description, AppUser user) {
+        Alert alert = Alert.getBasicAlertTemplate();
+        alert.setTitle(title);
+        alert.setDescription(description);
+        alert.setUser(user);
+
+        Alert savedAlert = alertRepository.save(alert);
+
+        notificationService.sendNotificationToUser(savedAlert, user.getUsername());
+
+        return alertMapper.mapEntityToDto(savedAlert);
     }
 
     public AlertStatistics getAlertStatisticsOfUser() {
