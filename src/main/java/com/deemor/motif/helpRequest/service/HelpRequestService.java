@@ -12,6 +12,9 @@ import com.deemor.motif.helpRequest.mapper.HelpRequestMapper;
 import com.deemor.motif.helpRequest.repository.HelpRequestRepository;
 import com.deemor.motif.user.service.AppUserService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,13 +25,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class HelpRequestService {
 
     private final HelpRequestRepository helpRequestRepository;
     private final HelpRequestMapper helpRequestMapper;
     private final AppUserService appUserService;
     private final AlertService alertService;
+
+    @Value("${application.help-request.paging.max-items-per-page}")
+    private Integer maxItemsPerPage;
 
     public HelpRequestDto addHelpRequest(HelpRequestAddDto helpRequestAddDto) {
         HelpRequest helpRequest = helpRequestMapper.mapAddDtoToEntity(helpRequestAddDto);
@@ -58,7 +64,7 @@ public class HelpRequestService {
     }
 
     public HelpRequestPage getHelpRequestsOfUserPageable(Integer pageNumber, Integer itemsPerPage) {
-        itemsPerPage = itemsPerPage > 10 ? 10 : itemsPerPage;
+        itemsPerPage = itemsPerPage > maxItemsPerPage ? maxItemsPerPage : itemsPerPage;
 
         Page<HelpRequest> page = helpRequestRepository.findAllByRequester(
                 appUserService.getLoggedUser(),
@@ -74,7 +80,7 @@ public class HelpRequestService {
     }
 
     public HelpRequestPage getHelpRequestsAdminPageable(Integer pageNumber, Integer itemsPerPage) {
-        itemsPerPage = itemsPerPage > 10 ? 10 : itemsPerPage;
+        itemsPerPage = itemsPerPage > maxItemsPerPage ? maxItemsPerPage : itemsPerPage;
 
         Page<HelpRequest> page = helpRequestRepository.findAllByStatusIn(
                 List.of(HelpRequestStatus.NEW, HelpRequestStatus.CLOSED, HelpRequestStatus.OPEN),

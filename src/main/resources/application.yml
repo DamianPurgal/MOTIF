@@ -20,6 +20,12 @@ spring:
   rabbitmq:
     host: localhost
 application:
+  help-request:
+    paging:
+      max-items-per-page: 10
+  alert:
+    paging:
+      max-items-per-page: 10
   jwt:
     tokenPrefix: Bearer
     secretKeyRefreshToken: a59aAD6&^z3HOaum*G2jrJz86zfpB2L4@5!im%nbeRb*rs0rdzL4@5!im%nbeRb*rs0rdz
@@ -47,6 +53,12 @@ spring:
   rabbitmq:
     host: rabbitmq
 application:
+  help-request:
+    paging:
+      max-items-per-page: 10
+  alert:
+    paging:
+      max-items-per-page: 10
   jwt:
     tokenPrefix: Bearer
     secretKeyRefreshToken: a59aAD6&^z3HOaum*G2jrJz86zfpB2L4@5!im%nbeRb*rs0rdzL4@5!im%nbeRb*rs0rdz

@@ -12,7 +12,9 @@ import com.deemor.motif.user.exception.UserUsernameNotFoundException;
 import com.deemor.motif.user.repository.AppUserRepository;
 import com.deemor.motif.user.service.AppUserService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class AlertService {
 
@@ -32,6 +34,9 @@ public class AlertService {
     private final AppUserService appUserService;
     private final AppUserRepository appUserRepository;
     private final NotificationService notificationService;
+
+    @Value("${application.alert.paging.max-items-per-page}")
+    private Integer maxItemsPerPage;
 
     @Transactional
     public List<AlertDto> getAllUnreadAlertsOfUser() {
@@ -42,7 +47,7 @@ public class AlertService {
     }
 
     public AlertPage getAllAlertsOfUserPageable(Integer pageNumber, Integer itemsPerPage) {
-        itemsPerPage = itemsPerPage > 10 ? 10 : itemsPerPage;
+        itemsPerPage = itemsPerPage > maxItemsPerPage ? maxItemsPerPage : itemsPerPage;
 
         Page<Alert> page = alertRepository.findAllByUser(
                 appUserService.getLoggedUser(),
@@ -111,6 +116,7 @@ public class AlertService {
 
 
     //Method for testing
+
 //    @Scheduled(fixedDelay = 2000)
 //    public void addAlertToUser() {
 //        try {
